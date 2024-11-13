@@ -3,4 +3,4 @@ mod types;
 
 pub use types::*;
 
-pub use metadata::metadata;
+pub use metadata::{metadata, verify_integrity};

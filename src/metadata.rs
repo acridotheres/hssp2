@@ -1,7 +1,19 @@
 use crate::{Encryption, File, Metadata};
-use acr::{encryption::sha256cbc, hash::sha256};
+use acr::{
+    encryption::sha256cbc,
+    hash::{murmur3, sha256},
+};
 use dh::{recommended::*, Readable};
 use std::io::Result;
+
+pub fn verify_integrity<'a>(reader: &'a mut dyn Readable<'a>, meta: &Metadata) -> Result<bool> {
+    let hash = meta.checksum;
+    let offset = if meta.version > 2 { 128 } else { 64 };
+    let size = reader.size()?;
+
+    let calculated = murmur3(reader, offset, size - offset)?;
+    Ok(calculated == hash)
+}
 
 pub fn metadata<'a>(reader: &'a mut dyn Readable<'a>, password: Option<&str>) -> Result<Metadata> {
     let mut version = if reader.read_bytes(4)? == b"SFA\0" {
@@ -58,15 +70,14 @@ pub fn metadata<'a>(reader: &'a mut dyn Readable<'a>, password: Option<&str>) ->
         }
 
         let password = password.unwrap();
-        let password_vec = password.as_bytes().to_vec(); // TODO: fix this in `dh`
 
         let key = sha256(
-            &mut dh::data::read_ref(&password_vec),
+            &mut dh::data::read_ref(password.as_bytes()),
             0,
             password.len() as u64,
         )?;
 
-        let hash = sha256(&mut dh::data::read_ref(&key.to_vec()), 0, 32)?;
+        let hash = sha256(&mut dh::data::read_ref(&key), 0, 32)?;
 
         if hash != pwd_hash {
             return Ok(Metadata {

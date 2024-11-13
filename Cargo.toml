@@ -4,5 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-acr = { git = "https://github.com/acridotheres/acr", tag = "v0.3.0"}
-dh = "0.7.1"
+acr = { git = "https://github.com/acridotheres/acr", branch = "main" }
+dh = "0.8.0"
