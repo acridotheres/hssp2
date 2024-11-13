@@ -16,3 +16,21 @@ fn wfld_normal() {
     assert_eq!(meta.files[0].length, 13);
     assert!(meta.main_file.is_none());
 }
+
+#[test]
+fn wfld_encrypted() {
+    let mut reader = dh::file::open_r("tests/samples/wfld-encrypted.hssp").unwrap();
+    let meta = metadata(&mut reader, Some("Password")).unwrap();
+
+    assert_eq!(meta.version, 1);
+    assert_eq!(meta.checksum, 1333391575);
+    assert!(meta.encryption.is_some());
+    let enc = meta.encryption.unwrap();
+    assert_eq!(enc.hash, enc.hash_expected);
+    assert_eq!(meta.files.len(), 1);
+    assert_eq!(meta.files[0].path, "test.txt");
+    assert!(!meta.files[0].directory);
+    assert_eq!(meta.files[0].offset, 18);
+    assert_eq!(meta.files[0].length, 13);
+    assert!(meta.main_file.is_none());
+}

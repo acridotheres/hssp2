@@ -11,7 +11,7 @@ pub struct Metadata {
 pub struct Encryption {
     pub hash: [u8; 32],
     pub hash_expected: [u8; 32],
-    pub iv: u128,
+    pub iv: [u8; 16],
     pub decrypted: Vec<u8>,
 }
 
