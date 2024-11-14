@@ -1,5 +1,5 @@
 use dh::recommended::*;
-use hssp2::{metadata, verify_integrity};
+use hssp2::{extract, metadata, verify_integrity};
 
 #[test]
 fn wfld_normal() {
@@ -16,6 +16,10 @@ fn wfld_normal() {
     assert_eq!(meta.files[0].offset, 82);
     assert_eq!(meta.files[0].length, 13);
     assert!(meta.main_file.is_none());
+
+    let mut target = dh::data::write_new(meta.files[0].length);
+    extract(&mut reader, &meta.files[0], &mut target, 1024, 0).unwrap();
+    assert_eq!(dh::data::close(target), b"Hello, world!");
 }
 
 #[test]
@@ -37,6 +41,14 @@ fn wfld_multiple() {
     assert_eq!(meta.files[1].offset, 122);
     assert_eq!(meta.files[1].length, 15);
     assert!(meta.main_file.is_none());
+
+    let mut target = dh::data::write_new(meta.files[0].length);
+    extract(&mut reader, &meta.files[0], &mut target, 1024, 0).unwrap();
+    assert_eq!(dh::data::close(target), b"Hello, world!");
+
+    let mut target = dh::data::write_new(meta.files[1].length);
+    extract(&mut reader, &meta.files[1], &mut target, 1024, 0).unwrap();
+    assert_eq!(dh::data::close(target), b"Hello, world! 2");
 }
 
 #[test]
@@ -58,6 +70,10 @@ fn wfld_folder() {
     assert_eq!(meta.files[1].offset, 109);
     assert_eq!(meta.files[1].length, 13);
     assert!(meta.main_file.is_none());
+
+    let mut target = dh::data::write_new(meta.files[1].length);
+    extract(&mut reader, &meta.files[1], &mut target, 1024, 0).unwrap();
+    assert_eq!(dh::data::close(target), b"Hello, world!");
 }
 
 #[test]
@@ -75,6 +91,10 @@ fn wfld_withmain() {
     assert_eq!(meta.files[0].offset, 82);
     assert_eq!(meta.files[0].length, 13);
     assert_eq!(meta.main_file, Some(0));
+
+    let mut target = dh::data::write_new(meta.files[0].length);
+    extract(&mut reader, &meta.files[0], &mut target, 1024, 0).unwrap();
+    assert_eq!(dh::data::close(target), b"Hello, world!");
 }
 
 #[test]
@@ -110,6 +130,17 @@ fn wfld_encrypted() {
     assert_eq!(meta.files[0].offset, 18);
     assert_eq!(meta.files[0].length, 13);
     assert!(meta.main_file.is_none());
+
+    let mut target = dh::data::write_new(meta.files[0].length);
+    extract(
+        &mut dh::data::read_ref(&enc.decrypted),
+        &meta.files[0],
+        &mut target,
+        1024,
+        0,
+    )
+    .unwrap();
+    assert_eq!(dh::data::close(target), b"Hello, world!");
 }
 
 #[test]
