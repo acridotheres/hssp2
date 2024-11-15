@@ -1,3 +1,5 @@
+use dh::Readable;
+
 #[derive(Debug)]
 pub struct Metadata {
     pub version: u8,
@@ -22,3 +24,5 @@ pub struct File {
     pub offset: u64,
     pub length: u64,
 }
+
+pub struct FileWithSource<'a>(pub &'a File, pub &'a mut dyn Readable<'a>);

@@ -5,7 +5,8 @@ version = 3
 [[package]]
 name = "acr"
 version = "0.3.1"
-source = "git+https://github.com/acridotheres/acr?branch=main#379a89f8d438725c9f0adf8eda7ea24f429f32e8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "92f6772437aab7dfc0228362513ee1428b407f29a28c4a26823b4a2b6c8b4009"
 dependencies = [
  "chrono",
  "crc32fast",
