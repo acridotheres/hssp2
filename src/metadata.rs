@@ -1,6 +1,6 @@
 use crate::{Encryption, File, Metadata};
 use acr::{
-    encryption::sha256cbc,
+    encryption::aes256cbc,
     hash::{murmur3, sha256},
 };
 use dh::{recommended::*, Readable};
@@ -11,7 +11,7 @@ pub fn verify_integrity<'a>(reader: &'a mut dyn Readable<'a>, meta: &Metadata) -
     let offset = if meta.version > 2 { 128 } else { 64 };
     let size = reader.size()?;
 
-    let calculated = murmur3(reader, offset, size - offset)?;
+    let calculated = murmur3(reader, offset, size - offset, 0x31082007)?;
     Ok(calculated == hash)
 }
 
@@ -96,7 +96,7 @@ pub fn metadata<'a>(reader: &'a mut dyn Readable<'a>, password: Option<&str>) ->
 
         let pos = reader.pos()?;
         let size = reader.size()? - pos;
-        let decrypted = sha256cbc::decrypt(reader, &key, &iv, pos, size)?;
+        let decrypted = aes256cbc::decrypt(reader, &key, &iv, pos, size)?;
         decrypted_reader = Some(dh::data::read(decrypted));
         decrypted_reader.as_mut().unwrap()
     } else {

@@ -1,6 +1,6 @@
 use crate::FileWithSource;
 use acr::{
-    encryption::sha256cbc,
+    encryption::aes256cbc,
     hash::{murmur3, sha256},
 };
 use dh::{recommended::*, Readable, Rw, Writable};
@@ -82,7 +82,7 @@ pub fn create<'a>(
 
         let body_size = body.size()?;
 
-        let cipher = sha256cbc::encrypt(&mut body, &key, iv, 0, body_size)?;
+        let cipher = aes256cbc::encrypt(&mut body, &key, iv, 0, body_size)?;
         target.write_bytes(&cipher)?;
     } else {
         for source in sources {
@@ -109,7 +109,7 @@ pub fn create<'a>(
 
     let body_size = target.pos()? - body_pos;
 
-    let hash = murmur3(Readable::as_trait(target), body_pos, body_size)?;
+    let hash = murmur3(Readable::as_trait(target), body_pos, body_size, 0x31082007)?;
 
     Ok((hash_pos, hash))
 }
