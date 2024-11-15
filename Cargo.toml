@@ -1,7 +1,10 @@
 [package]
 name = "hssp2"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
+description = "HSSP v1-3 reference implementation"
+license = "MIT"
+repository = "https://github.com/acridotheres/hssp2"
 
 [dependencies]
 acr = "0.3.2"
